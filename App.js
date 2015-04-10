@@ -85,7 +85,9 @@ Ext.define('CustomApp', {
                 data: fields
             });
         }
-        
+        if (this.down('rallygrid')) {
+            Ext.ComponentQuery.query('#gridContainer')[0].remove(Ext.ComponentQuery.query('#attributeGrid')[0], true);
+        }
          this.down('#gridContainer').add({
             xtype: 'rallygrid',
             itemId: 'attributeGrid',
