@@ -2,10 +2,13 @@ Ext.define('CustomApp', {
     extend: 'Rally.app.App',
     componentCls: 'app',
     items:[
-        {
-            xtype: 'text',
-            html: 'ok',
+         {
+            xtype: 'container',
             itemId: 'boxContainer'
+        },
+        {
+            xtype: 'container',
+            itemId: 'gridContainer'
         }
     ],
     launch: function() {
@@ -19,16 +22,16 @@ Ext.define('CustomApp', {
                 operator: '=',
                 value: 'HierarchicalRequirement'  
             });
-            filters = filters.or({
-                property: 'ElementName',
-                operator: '=',
-                value: 'TestCase'  
-            });
-            filters = filters.or({
-                property: 'ElementName',
-                operator: '=',
-                value: 'Task'  
-            });
+            //filters = filters.or({
+            //    property: 'ElementName',
+            //    operator: '=',
+            //    value: 'TestCase'  
+            //});
+            //filters = filters.or({
+            //    property: 'ElementName',
+            //    operator: '=',
+            //    value: 'Task'  
+            //});
             
         var typeDefCombobox = Ext.create('Rally.ui.combobox.ComboBox', {
                 itemId: 'typeDefCombobox',
@@ -50,7 +53,7 @@ Ext.define('CustomApp', {
                     scope: this
    		}
             });
-            this.add(typeDefCombobox);
+            this.down('#boxContainer').add(typeDefCombobox);
     },
     _loadCustomFields:function(record){
         var that = this;
@@ -67,21 +70,34 @@ Ext.define('CustomApp', {
                     }
                     pendingAttributes--;
                     if (pendingAttributes === 0) {
-                        that._buildCustomFieldsCombobox(fieldsArray);
+                        that._makeGrid(fieldsArray);
                     }
                     
                 }); 
             }
         });
     },
-    _buildCustomFieldsCombobox:function(fields){
+    _makeGrid:function(fields){
         console.log(fields);
         if (fields.length>0) { 
-            var customFieldsStore = Ext.create('Rally.data.custom.Store', {
-                autoLoad: true,
+            var store = Ext.create('Rally.data.custom.Store', {
                 fields: ['name','type'],
                 data: fields
             });
         }
+        
+         this.down('#gridContainer').add({
+            xtype: 'rallygrid',
+            itemId: 'attributeGrid',
+            store: store,
+            enableEditing: false,
+            showRowActionsColumn: false,
+            columnCfgs: [
+                {text: 'Name', dataIndex: 'name'},
+                {text: 'Type', dataIndex: 'type'},
+            ]
+        });
+
+        
     }
 });
