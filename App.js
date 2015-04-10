@@ -61,12 +61,32 @@ Ext.define('CustomApp', {
         var count = attributes.getCount();
         var pendingAttributes = count;
         var fieldsArray = [];
+        var valuesArray = [];
         attributes.load({
-            fetch:['ElementName','Custom','AttributeType'],
+            fetch:['ElementName','Custom','AttributeType','AllowedValues'],
             callback: function(fields, operation, success){
                 _.each(fields, function(field){
                     if (field.get('Custom') === true) {
-                        fieldsArray.push({'name':field.get('ElementName'),'type':field.get('AttributeType')});
+                        if (field.get('AttributeType') === 'STRING') {
+                            console.log('allowedvalues', field.get('AllowedValues')._ref);
+                            var allowedValues = field.getCollection('AllowedValues');
+                            var countOfAllowedValues = allowedValues.getCount();
+                            var pendingAllowedValues = countOfAllowedValues;
+                            allowedValues.load({
+                                fetch:['StringValue'],
+                                callback: function(values, operation, success){
+                                    _.each(values, function(value){
+                                        valuesArray.push(value.get('StringValue'));
+                                        console.log('value', value.get('StringValue'));
+                                        pendingAllowedValues--;
+                                        if (pendingAllowedValues === 0) {
+                                            //
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        fieldsArray.push({'name':field.get('ElementName'),'type':field.get('AttributeType'),'values':allowedValuesArray});
                     }
                     pendingAttributes--;
                     if (pendingAttributes === 0) {
@@ -97,6 +117,16 @@ Ext.define('CustomApp', {
             columnCfgs: [
                 {text: 'Name', dataIndex: 'name'},
                 {text: 'Type', dataIndex: 'type'},
+                {
+                    text: 'Values', dataIndex: 'values', 
+                    renderer: function(value) {
+                        var html = [];
+                        _.each(value, function(v){
+                            html.push(v)
+                        });
+                        return html.join(', ');
+                    }
+                }
             ]
         });
 
