@@ -91,18 +91,22 @@ Ext.define('CustomApp', {
                         }
                     }
                     else if(field.get('Custom') === true && field.get('AttributeType') === 'STRING'){
-                        console.log(field.get('ElementName'));
-                        var allowedValues = field.getCollection('AllowedValues');
-                        allowedValues.load({
+                        var allowed = field.getCollection('AllowedValues');
+                        allowed.load({
                             fetch:['StringValue'],
                             callback: function(values, operation, success){
-                                var valuesString = "";
-                                that._countOfValues = values.length;
+                                var allowedValues = [];
+				var countOfValues = values.length;
                                 _.each(values, function(value){
-                                    valuesString += value.get('StringValue') + ', ';
-                                    that._countOfValues--;
+				    countOfValues--;
+				    if (value.get('StringValue') !== '') { //remove empty value
+					allowedValues.push(value.get('StringValue'));
+				    }
+				    if (countOfValues === 0) {
+					allowedValues = allowedValues.join(',');
+				    }
                                 });
-                                fieldsArray.push({'name':field.get('ElementName'),'type':field.get('AttributeType'),'allowedvalues':valuesString});
+                                fieldsArray.push({'name':field.get('ElementName'),'type':field.get('AttributeType'),'allowedvalues':allowedValues});
                                 pendingAttributes--;
                                 if (pendingAttributes === 0) {
                                     that._makeGrid(fieldsArray);
@@ -141,15 +145,15 @@ Ext.define('CustomApp', {
             store: store,
             enableEditing: false,
             showRowActionsColumn: false,
+	    width: 700,
             columnCfgs: [
-                {text: 'Name', dataIndex: 'name'},
+                {text: 'Name', dataIndex: 'name',flex:1},
                 {text: 'Type', dataIndex: 'type'},
-                {text: 'Allowed Values', dataIndex: 'allowedvalues'}
+                {text: 'Allowed Values', dataIndex: 'allowedvalues',flex:1}
             ]
         });
         }
 	else{
-	    console.log('No custom fields found');
 	    Ext.ComponentQuery.query('#notifier')[0].update('no custom fields found');
 	}
         
