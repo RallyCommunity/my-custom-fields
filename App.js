@@ -77,7 +77,9 @@ Ext.define('CustomApp', {
     },
 
     _loadCustomFields: function (record) {
-        var attributes = record.getCollection('Attributes');
+        var attributes = record.getCollection('Attributes', {
+            limit: Infinity
+        });
         var fieldsArray = [];
 
         attributes.load({
